@@ -10,3 +10,9 @@
 - çalışan sql'leri konsola yazar
 ### Spring Data Query Method nedir?
 - Spring metod adına bakarak metodu otomatik olarak üretir. Buna "query method" denir.
+## Docker Compose Nedir?
+- Kafka'yı veritabanına ayrı ayrı docker run komutları ile başlatırken docker compose tüm bu altyapıyı tek bir dosyada (docker-compose.yml) tanımlamanı ve tek bir komut ile "docker compose up" ayağa kaldırmanı sağlar. x servislerini şu şu ayarlar ile çalıştır der gibi bir recipe yazmış oluyorsun.
+### Docker Compose Dosyası Nasıl Oluşturulur?
+- services altında her bir konteyner tanımlanır. image hangi imajı kullanacağını, port ise host ile konteyner arasındaki port eşleşmesini sağlar. Mesela 9092:9092 => host'un 9092'si ile konteynerin 9092'si eşleşecek demektir. Environment ise konteynera verilen ayarları belirtiyor. Kafka ve postgres ayarları elle "docker run" çalıştırırken kullanılan komutlardaki ayarların birebir aynısı.
+- Kafka'nın "KAFKA_ADVERTISED_LISTENERS" değerinin "local:9092" olmasının nedeni order/inventory servislerinin konteyner'da değil kendi makinemizde nvm ile çalışıyor olması ve Kafka'ya localhost:9092 üzerinden bağlanıyor olmasından dolayı. İlerde servisleri konteyner'a taşırsak burası "kafka:9092" gibi servis adına döner.
+
