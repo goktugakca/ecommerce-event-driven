@@ -15,4 +15,11 @@
 ### Docker Compose Dosyası Nasıl Oluşturulur?
 - services altında her bir konteyner tanımlanır. image hangi imajı kullanacağını, port ise host ile konteyner arasındaki port eşleşmesini sağlar. Mesela 9092:9092 => host'un 9092'si ile konteynerin 9092'si eşleşecek demektir. Environment ise konteynera verilen ayarları belirtiyor. Kafka ve postgres ayarları elle "docker run" çalıştırırken kullanılan komutlardaki ayarların birebir aynısı.
 - Kafka'nın "KAFKA_ADVERTISED_LISTENERS" değerinin "local:9092" olmasının nedeni order/inventory servislerinin konteyner'da değil kendi makinemizde nvm ile çalışıyor olması ve Kafka'ya localhost:9092 üzerinden bağlanıyor olmasından dolayı. İlerde servisleri konteyner'a taşırsak burası "kafka:9092" gibi servis adına döner.
-
+### @Transactional Ne İşe Yarar?
+- Transaction ya hep ya hiç mantığını içerir, veritabanında aşamalı işlemler yapılacağı zaman işlemlerden birinde sorun çıkarsa veritabanındaki diğer verilere dokunmaz rollback yapar. Bu sayede tutarsız bir işlemde bulunmaz.Sade olarak "oku-azalt-kaydet" işlemini bölünmeden tek bir atomik işlem olarak yapmaya yarar.
+### AtomicLong nedir, nasıl sorunlara yol açar?
+- AtomicLong bellekte yaşayan bir veri tipidir. Kullanıldığı service her ayağa kaldırıldığında kendini 1 sayısına resetler. Service kopyası çıkarttığında her service kendi atomiclong'una sahip olduğu için id çakışması yaşanır. Çözüm olarak id kalıcı,tek bir otoriteden gelmeli. En yaygın yol id'yi (generatedvalue) olarak veritabanına ürettirmektir. Dağıtık sistemlerde ise dağıtık id üreticileri kullanılır, Snowflake,UUID gibi.
+### Order ve Inventory için ortak DB niye kullanmıyoruz?
+- Her servis kendi verisinin sahibidir(loose coupling). Ancak ortak DB olduğunda bir servis diğerinin tablosuna direkt şekilde erişebilir, bu da servislerin birbirine sıkıca bağlanmasına yol açar oysa mikroservis mantığında servislerin birbiri ile API/event üzerinden iletişim kurmasını ister birbirlerinin verilerine karışmasını istemez.
+- *Bağımsız şema değişikliği*. Ayrı DB'lerde inventory bir değişiklik yaptığında order servisini bozamaz ancak ortak dblerde şema değişikliği yapmaya çalıştığında diğer servisi bozabilir.
+- DB çökmesinde iki servis de etkilenir bu durumdan *arıza izolasyonu*.
